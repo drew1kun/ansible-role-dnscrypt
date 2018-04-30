@@ -1,0 +1,45 @@
+---
+# defaults file for ansible-dnscrypt
+
+dnscrypt_arch: arm64        # system architecture:
+                            # linux-arm, linux-arm64, linux-i386, linux-x86_64,
+                            # linux-mips, linux-mips64, linux-mipsle, linux-mips64le
+                            # freebsd-amd64, freebsd-arm, freebsd-i386
+                            # netbsd-amd64, netbsd-i386
+                            # openbsd-amd64, openbsd-i386
+                            # dragonflybsd-amd64
+                            # macos
+                            # android-arm, android-arm64, android-i386, android-x86_64
+                            # win32, win64
+
+dnscrypt_on_pihole: no      # Is it dnscrypt on pihole installation? Will modify pihole config
+
+dnscrypt_force_upgrade: no  # if yes, then old version of dnscript (if it exists) will be removed.
+                            # If no, then already installed dnscript binaries will be used.
+
+dnscrypt_proxy2_link: >
+  https://github.com/jedisct1/dnscrypt-proxy/releases/download/2.0.8/dnscrypt-proxy-linux_arm64-2.0.8.tar.gz
+  #https://github.com/jedisct1/dnscrypt-proxy/releases/download/2.0.8/dnscrypt-proxy-linux_arm-2.0.8.tar.gz
+
+dnscrypt_bin: /usr/local/bin/dnscrypt-proxy  # where to put dnscrypt binary
+dnscrypt_config: /etc/dnscrypt-proxy/dnscrypt-proxy.toml # where to store dnscrypt config
+dnscrypt_socket_only: yes  # Use ONLY socket activation of dnscrypt-proxy.service (used in dnscrypt-proxy.toml)
+
+# DNSCrypt main configruation file variables (Check templates/dnscrypt-proxy.toml.j2)
+dnscrypt_ipv4_address: 127.0.0.1
+dnscrypt_port: 41
+
+# 'true' | 'false' - not True or false, as this syntax is being imported into dnscrypt configuration file.
+dnscrypt_ipv4_servers: 'true'      # Use servers reachable over IPv4.
+dnscrypt_ipv6_servers: 'false'     # Use servers reachable over IPv6. Do not enable if you don't have IPv6 set up.
+dnscrypt_dc_servers: 'true'        # Use servers implementing the DNSCrypt protocol.
+dnscrypt_doh_servers: 'true'       # Use servers implementing the DNS-over-HTTPS protocol.
+dnscrypt_require_dnssec: 'true'
+dnscrypt_require_nolog: 'true'     # Server must not log user queries (declarative).
+dnscrypt_require_nofilter: 'true'  # Server must not enforce its own blacklist (for parental control, ads blocking)
+dnscrypt_force_tcp: 'false'        # Always use TCP to connect to upstream servers. Useful for TOR.
+
+# 9.9.9.9:53 -- Quad9 DNSSec anycast privacy oriented Google alternative
+# 114.114.114.114:53 -- for people in China.
+dnscrypt_fallback_resolver: 9.9.9.9:53 # non-encrypted fallback resolver. Only used if DNS config doesn't work
+

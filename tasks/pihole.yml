@@ -1,0 +1,32 @@
+---
+# Modify PIHOLE
+- name: "[pihole] Generate /etc/dnsmasq.d/02-dnscrypt.conf"
+  template: src=02-dnscrypt.conf.j2 dest=/etc/dnsmasq.d/02-dnscrypt.conf
+  become: yes
+  notify: Restart dnsmasq
+  tags:
+    - pihole
+    - pihole_dnscrypt
+
+- name: "[pihole] Modify /etc/pihole/setupVars.conf"
+  replace:
+    path: /etc/pihole/setupVars.conf
+    regexp: '^(PIHOLE_DNS_[0-9]=.*)'
+    replace: '#\1'
+  become: yes
+  notify: Restart dnsmasq
+  tags:
+    - pihole
+    - pihole_dnscrypt
+
+- name: "[pihole] Modify /etc/dnsmasq.d/01-pihole.conf"
+  replace:
+    path: /etc/dnsmasq.d/01-pihole.conf
+    regexp: '^(server=.*)'
+    replace: '#\1'
+  become: yes
+  notify: Restart dnsmasq
+  tags:
+    - pihole
+    - pihole_dnscrypt
+...

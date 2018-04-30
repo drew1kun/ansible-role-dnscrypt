@@ -1,0 +1,134 @@
+---
+# tasks file for ansible-dnscrypt
+
+- name: "[main] Check if /opt/dnscrypt-proxy already exists"
+  stat: path=/opt/dnscrypt-proxy
+  register: dnscrypt_proxy
+  tags:
+    - dnscrypt
+
+- name: "[main] Download dnscrypt-proxy2"
+  unarchive: src="{{ dnscrypt_proxy2_link }}" dest=/opt/ remote_src=yes
+  become: yes
+  when: dnscrypt_force_upgrade or not dnscrypt_proxy.stat.exists
+  # without 'when' will be downloaded unconditionally, because creates '{ dnscrypt-arch }' dir which will be renamed
+  tags:
+    - dnscrypt
+
+- name: "[main] Make sure old /opt/dnscrypt-proxy is removed if dnscrypt_force_upgrade is set to yes"
+  file: path=/opt/dnscrypt-proxy state=absent
+  when: dnscrypt_force_upgrade
+  become: yes
+  tags:
+    - dnscrypt
+
+- name: "[DNSCrypt] Check if old /opt/{{ dnscrypt_arch }} exists"
+  stat: path="/opt/{{ dnscrypt_arch }}"
+  register: pihole_linux_arch_old
+  tags:
+    - dnscrypt
+
+- name: "[main] Rename /opt/{{ dnscrypt_arch }} to /opt/dnscrypt-proxy"
+  command: "mv /opt/{{ dnscrypt_arch }} /opt/dnscrypt-proxy"
+  become: yes
+  when: pihole_linux_arch_old.stat.exists
+  tags:
+    - dnscrypt
+
+- name: "[main] Symlink /opt/dnscrypt-proxy/dnscrypt-proxy to {{ dnscrypt_bin }}"
+  file: src=/opt/dnscrypt-proxy/dnscrypt-proxy dest="{{ dnscrypt_bin }}" state=link
+  become: yes
+  tags:
+    - dnscrypt
+
+- name: "[main] Check dnscrypt-proxy binary capabilities for running it as unprivileged user"
+  command: setcap -v cap_net_bind_service=+pe /opt/dnscrypt-proxy/dnscrypt-proxy
+  become: yes
+  changed_when: false
+  failed_when: false
+  register: dnscrypt_bin_cap
+  tags:
+    - dnscrypt
+
+- name: "[main] Fix dnscrypt-proxy binary capabilities for running it as unprivileged user"
+  command: setcap cap_net_bind_service=+pe /opt/dnscrypt-proxy/dnscrypt-proxy
+  become: yes
+  when: dnscrypt_bin_cap.rc != 0
+  tags:
+    - dnscrypt
+
+- name: "[main] Generate /opt/dnscrypt-proxy/dnscrypt-proxy.toml configuration file"
+  template: src=dnscrypt-proxy.toml.j2 dest=/opt/dnscrypt-proxy/dnscrypt-proxy.toml
+  become: yes
+  notify:
+    - Restart dnscrypt-proxy.socket systemd unit
+    - Run 'dnscrypt-proxy -service restart'
+  tags:
+    - dnscrypt
+
+- name: "[main] Create dnscrypt config directory"
+  file: path=/etc/dnscrypt-proxy state=directory
+  become: yes
+  tags:
+    - dnscrypt
+
+- name: "[main] Symlink /opt/dnscrypt-proxy/dnscrypt-proxy.toml to {{ dnscrypt_config }}"
+  file: src=/opt/dnscrypt-proxy/dnscrypt-proxy.toml dest="{{ dnscrypt_config }}" state=link
+  become: yes
+  tags:
+    - dnscrypt
+
+- name: "[main] Check if distribution uses systemd init"
+  stat: path=/bin/systemctl
+  register: pihole_systemd
+  tags:
+    - dnscrypt
+
+- name: "[main] Include systemd-related tasks, if distro is using systemd init"
+  include_tasks: systemd.yml
+  when: pihole_systemd.stat.exists
+  tags:
+    - dnscrypt
+
+- name: "[main] Install dnscrypt-proxy service"
+  command: /opt/dnscrypt-proxy/dnscrypt-proxy -service install
+  register: dnscrypt_proxy_installed
+  become: yes
+  failed_when:
+    - dnscrypt_proxy_installed.rc != 0
+    - dnscrypt_proxy_installed.rc != 255
+  changed_when: dnscrypt_proxy_installed.rc == 0
+  notify: Run 'dnscrypt-proxy -service restart'
+  when: not pihole_systemd.stat.exists
+  tags:
+    - dnscrypt
+
+- name: "[main] Uninstall old dnscrypt-proxy service"
+  command: /opt/dnscrypt-proxy/dnscrypt-proxy -service uninstall
+  become: yes
+  when:
+    - not pihole_systemd.stat.exists
+    - dnscrypt_proxy_installed.rc == 255
+    - dnscrypt_force_upgrade
+  tags:
+    - dnscrypt
+
+- name: "[main] Upgrade dnscrypt-proxy service"
+  command: /opt/dnscrypt-proxy/dnscrypt-proxy -service install
+  become: yes
+  notify: Run 'dnscrypt-proxy -service restart'
+  when:
+    - not pihole_systemd.stat.exists
+    - dnscrypt_force_upgrade
+  tags:
+    - dnscrypt
+
+
+# Modify PIHOLE
+- name: "[main] Include pihole-related tasks"
+  include_tasks: pihole.yml
+  when: dnscrypt_on_pihole
+  tags:
+    - dnscrypt
+    - dnscrypt_pihole
+...
