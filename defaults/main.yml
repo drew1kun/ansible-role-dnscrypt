@@ -1,7 +1,7 @@
 ---
 # defaults file for ansible-dnscrypt
 
-dnscrypt_arch: arm64        # system architecture:
+dnscrypt_arch: linux-arm64  # system architecture:
                             # linux-arm, linux-arm64, linux-i386, linux-x86_64,
                             # linux-mips, linux-mips64, linux-mipsle, linux-mips64le
                             # freebsd-amd64, freebsd-arm, freebsd-i386

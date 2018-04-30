@@ -22,7 +22,7 @@
   tags:
     - dnscrypt
 
-- name: "[DNSCrypt] Check if old /opt/{{ dnscrypt_arch }} exists"
+- name: "[main] Check if old /opt/{{ dnscrypt_arch }} exists"
   stat: path="/opt/{{ dnscrypt_arch }}"
   register: pihole_linux_arch_old
   tags:

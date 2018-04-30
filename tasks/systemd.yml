@@ -1,6 +1,6 @@
 ---
 # Systemd
-- name: "[DNSCrypt_systemd] Generate systemd dnscrypt-proxy.socket unit"
+- name: "[systemd] Generate systemd dnscrypt-proxy.socket unit"
   template:
     src: systemd/dnscrypt-proxy.socket.j2
     dest: /lib/systemd/system/dnscrypt-proxy.socket
@@ -13,7 +13,7 @@
     - pihole
     - pihole_dnscrypt
 
-- name: "[DNSCrypt_systemd] Generate systemd dnscrypt-proxy.service unit"
+- name: "[systemd] Generate systemd dnscrypt-proxy.service unit"
   template:
     src: systemd/dnscrypt-proxy.service.j2
     dest: /lib/systemd/system/dnscrypt-proxy.service
