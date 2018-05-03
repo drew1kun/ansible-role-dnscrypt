@@ -20,4 +20,9 @@
   tags:
     - dnscrypt
     - dnscrypt_pihole
+
+- meta: flush_handlers
+  tags:
+    - dnscrypt
+    - dnscrypt_pihole
 ...
