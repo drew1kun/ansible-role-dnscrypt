@@ -1,6 +1,13 @@
 ---
 # Systemd
-- name: "[systemd] Generate systemd dnscrypt-proxy.socket unit"
+- name: '[systemd] Check if distribution uses systemd init'
+  stat: path=/bin/systemctl
+  register: dnscrypt_systemd
+  tags:
+    - dnscrypt
+    - dnscrypt_systemd
+
+- name: '[systemd] Generate systemd dnscrypt-proxy.socket unit'
   template:
     src: systemd/dnscrypt-proxy.socket.j2
     dest: /lib/systemd/system/dnscrypt-proxy.socket
@@ -10,10 +17,10 @@
   become: yes
   notify: Restart dnscrypt-proxy.socket systemd unit
   tags:
-    - pihole
-    - pihole_dnscrypt
+    - dnscrypt
+    - dnscrypt_systemd
 
-- name: "[systemd] Generate systemd dnscrypt-proxy.service unit"
+- name: '[systemd] Generate systemd dnscrypt-proxy.service unit'
   template:
     src: systemd/dnscrypt-proxy.service.j2
     dest: /lib/systemd/system/dnscrypt-proxy.service
@@ -23,6 +30,6 @@
   become: yes
   notify: Restart dnscrypt-proxy.socket systemd unit
   tags:
-    - pihole
-    - pihole_dnscrypt
+    - dnscrypt
+    - dnscrypt_systemd
 ...

@@ -7,7 +7,7 @@
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Note: When using systemd socket activation, choose an empty set (i.e. [] ).
-{% if dnscrypt_socket_only %}
+{% if dnscrypt_sysd_socket_only %}
 listen_addresses = []
 {% else %}
 listen_addresses = ['{{ dnscrypt_ipv4_address }}:{{ dnscrypt_port }}', '[::1]:{{ dnscrypt_port }}']
@@ -15,6 +15,7 @@ listen_addresses = ['{{ dnscrypt_ipv4_address }}:{{ dnscrypt_port }}', '[::1]:{{
 
 ## Maximum number of simultaneous client connections to accept
 max_clients = 250
+
 
 ## Require servers (from static + remote sources) to satisfy specific properties
 # Use servers reachable over IPv4
@@ -29,6 +30,7 @@ dnscrypt_servers = {{ dnscrypt_dc_servers }}
 # Use servers implementing the DNS-over-HTTPS protocol
 doh_servers = {{ dnscrypt_doh_servers }}
 
+
 ## Require servers defined by remote sources to satisfy specific properties
 # Server must support DNS security extensions (DNSSEC)
 require_dnssec = {{ dnscrypt_require_dnssec }}
@@ -39,11 +41,19 @@ require_nolog = {{ dnscrypt_require_nolog }}
 # Server must not enforce its own blacklist (for parental control, ads blocking...)
 require_nofilter = {{ dnscrypt_require_nofilter }}
 
+
 ## Always use TCP to connect to upstream servers
+## This can be can be useful if you need to route everything through Tor.
+## Otherwise, leave this to `false`, as it doesn't improve security
+## (dnscrypt-proxy will always encrypt everything even using UDP), and can
+## only increase latency.
 force_tcp = {{ dnscrypt_force_tcp }}
 
 ## How long a DNS query will wait for a response, in milliseconds
 timeout = 2500
+
+## Keepalive for HTTP (HTTPS, HTTP/2) queries, in seconds
+keepalive = 30
 
 ## Load-balancing strategy: 'p2' (default), 'ph', 'fastest' or 'random'
 # lb_strategy = 'p2'
@@ -59,6 +69,32 @@ use_syslog = true
 
 ## Delay, in minutes, after which certificates are reloaded
 cert_refresh_delay = 240
+
+
+## DNSCrypt: Create a new, unique key for every single DNS query
+## This may improve privacy but can also have a significant impact on CPU usage
+## Only enable if you don't have a lot of network load
+# dnscrypt_ephemeral_keys = false
+
+
+## DoH: Disable TLS session tickets - increases privacy but also latency
+# tls_disable_session_tickets = false
+
+
+## DoH: Use a specific cipher suite instead of the server preference
+## 49199 = TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+## 49195 = TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+## 52392 = TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+## 52393 = TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+##
+## On non-Intel CPUs such as MIPS routers and ARM systems (Android, Raspberry Pi...),
+## the following suite improves performance.
+## This may also help on Intel CPUs running 32-bit operating systems.
+##
+## Keep tls_cipher_suite empty if you have issues fetching sources or
+## connecting to some DoH servers. Google and Cloudflare are fine with it.
+# tls_cipher_suite = [52392, 49199]
+
 
 ## Fallback resolver
 ## This is a normal, non-encrypted DNS resolver, that will be only used
@@ -77,6 +113,7 @@ fallback_resolver = '{{ dnscrypt_fallback_resolver }}'
 ## Never try to use the system DNS settings; unconditionally use the
 ## fallback resolver.
 ignore_system_dns = false
+
 
 ## Automatic log files rotation
 # Maximum log files size in MB
@@ -120,7 +157,7 @@ block_ipv6 = false
 cache = true
 
 ## Cache size
-cache_size = 256
+cache_size = 512
 
 ## Minimum TTL for cached entries
 cache_min_ttl = 600
@@ -128,8 +165,11 @@ cache_min_ttl = 600
 ## Maximum TTL for cached entries
 cache_max_ttl = 86400
 
-## TTL for negatively cached entries
-cache_neg_ttl = 60
+# Minimum TTL for negatively cached entries
+cache_neg_min_ttl = 60
+
+## Maximum TTL for negatively cached entries
+cache_neg_max_ttl = 600
 #==========================================================================
 
 #============================ Query logging ===============================
@@ -180,9 +220,8 @@ cache_neg_ttl = 60
   # log_format = 'tsv'
 #==========================================================================
 
-#==== Pattern-based IP blocking (IP blacklists) =====
+#=============== Pattern-based IP blocking (IP blacklists) ================
 ## IP blacklists are made of one pattern per line. Example of valid patterns:
-##
 ##   127.*
 ##   fe80:abcd:*
 ##   192.168.1.4
@@ -192,6 +231,23 @@ cache_neg_ttl = 60
 
   ## Optional path to a file logging blocked queries
   # log_file = 'ip-blocked.log'
+
+  ## Optional log format: tsv or ltsv (default: tsv)
+  # log_format = 'tsv'
+#==========================================================================
+
+#============= Pattern-based whitelisting (blacklists bypass) ==============
+## Whitelists support the same patterns as blacklists
+## If a name matches a whitelist entry, the corresponding session
+## will bypass names and IP filters.
+##
+## Time-based rules are also supported to make some websites only accessible at specific times of the day.
+[whitelist]
+  ## Path to the file of whitelisting rules (absolute, or relative to the same directory as the executable file)
+  # whitelist_file = 'whitelist.txt'
+
+  ## Optional path to a file logging whitelisted queries
+  # log_file = 'whitelisted.log'
 
   ## Optional log format: tsv or ltsv (default: tsv)
   # log_format = 'tsv'
@@ -262,5 +318,5 @@ cache_neg_ttl = 60
 ## Mostly useful for testing your own servers.
 [static]
   # [static.'google']
-  # stamp = 'sdns://AgUAAAAAAAAAACDyXGrcc5eNecJ8nomJCJ-q6eCLTEn6bHic0hWGUwYQaA5kbnMuZ29vZ2xlLmNvbQ0vZXhwZXJpbWVudGFs'
+  # stamp = 'sdns://AgUAAAAAAAAAAAAOZG5zLmdvb2dsZS5jb20NL2V4cGVyaW1lbnRhbA'
 #==========================================================================

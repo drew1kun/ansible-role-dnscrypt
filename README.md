@@ -27,15 +27,18 @@ Role Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| **dnscrypt_arch** | System architecture. See [available architectures][dnscrypt-arch-link]. Check [`defaults/main.yml`](defaults/main.yml) | `linux-arm64` |
+| **dnscrypt_arch** | System architecture dictionary, containing two keys: **archive** [architecture name in .tar.gz] and **dir** [arch name of archived directory]. See [available architectures][dnscrypt-arch-link]. Check [`defaults/main.yml`](defaults/main.yml) | `{ archive: linux_arm64, dir: linux-arm64 }` |
+| **dnscrypt_default_version** | Fallback version in case the website doesn't have info about latest version | `2.0.11` |
 | **dnscrypt_on_pihole** | Is it dnscrypt on [pihole][pihole-link] installation? If `yes` then it will modify pihole config | `no` |
-| **dnscrypt_force_upgrade** | Force reinstall `dnscrypt-proxy2` even if it's already installed | `no` |
-| **dnscrypt_proxy2_link** | url of the latest `dnscrypt-proxy2` version. Must be updated manually | `https://github.com/jedisct1/dnscrypt-proxy/releases/download/2.0.8/dnscrypt-proxy-linux_arm-2.0.8.tar.gz` |
 | **dnscrypt_bin** | Where to put dnscrypt-proxy binary | `/usr/local/bin/dnscrypt-proxy` |
 | **dnscrypt_config** | Where to store dnscrypt config | `/etc/dnscrypt-proxy/dnscrypt-proxy.toml` |
-| **dnscrypt_socket_only** | Use ONLY socket activation of dnscrypt-proxy.service | `yes` |
+| **dnscrypt_sysd_socket_only** | Use ONLY socket activation of dnscrypt-proxy.service | `yes` |
 
-### Config-related vars
+### Some config-related vars
+
+These are just basic config vars.
+
+For more detailed dnscrypt proxy configuration please study and modify the *dnscrypt-proxy.toml*
 
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -45,7 +48,7 @@ Role Variables
 | **dnscrypt_ipv6_servers** | Use servers reachable over IPv6. Do not enable if you don't have IPv6 set | `'false'` |
 | **dnscrypt_dc_servers** | Use servers implementing the DNSCrypt protocol | `'true'` |
 | **dnscrypt_doh_servers** | Use servers implementing the DNS-over-HTTPS protocol | `'true'` |
-| **dnscrypt_require_dnssec** | Server must use DNSSEC validation | `'true'` |
+| **dnscrypt_require_dnssec** | Require upstream resolver to support DNSSEC validation | `'true'` |
 | **dnscrypt_require_nolog** | Server must not log user queries (declarative) | `'true'` |
 | **dnscrypt_require_nofilter** | Server must NOT enforce its own blacklist (for parental control, ads blocking) | `'true'` |
 | **dnscrypt_force_tcp** | Always use TCP to connect to upstream servers. Useful for TOR. | `'false'` |
