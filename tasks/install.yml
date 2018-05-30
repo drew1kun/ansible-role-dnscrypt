@@ -11,7 +11,7 @@
     - dnscrypt
     - dnscrypt_install
 
-- name: "[install] Retrive the latest dnscrypt-proxy versions fro all architectures"
+- name: "[install] Retrive the latest dnscrypt-proxy versions for all architectures"
   uri:
     url: https://api.github.com/repos/jedisct1/dnscrypt-proxy/releases/latest
   register: dnscrypt_latest_all_arch
