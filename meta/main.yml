@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: dnscrypt
   author: Andrew Shagayev
   description: Role for automated dnscrypt-proxy2 installation
 
