@@ -18,6 +18,8 @@ galaxy_info:
   - networking
   - dns
   - dnscrypt
+  - dnscrypt_proxy
+  - dnscrypt_proxy2
 
 dependencies: []
 ...
