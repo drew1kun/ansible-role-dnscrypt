@@ -64,7 +64,7 @@ Example Playbook
 
     - hosts: raspberrypi
       gather_facts: yes
-      roles: drew_kun.dnscrypt
+      roles: drew-kun.dnscrypt
 
 License
 -------
@@ -76,10 +76,10 @@ Author Information
 
 Andrew Shagayev | [e-mail](mailto:drewshg@gmail.com)
 
-[role-badge]: https://img.shields.io/badge/role-drew__kun.dnscrypt-green.svg
-[galaxy-link]: https://galaxy.ansible.com/drew_kun/dnscrypt/
+[role-badge]: https://img.shields.io/badge/role-drew--kun.dnscrypt-green.svg
+[galaxy-link]: https://galaxy.ansible.com/drew-kun/dnscrypt/
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
-[mit-link]: https://raw.githubusercontent.com/drew_kun/ansible-dnscrypt/master/LICENSE
+[mit-link]: https://raw.githubusercontent.com/drew-kun/ansible-dnscrypt/master/LICENSE
 [minibian-link]: https://minibianpi.wordpress.com/
 [pihole-link]: https://pi-hole.net/
 [dnscrypt-proxy2-link]: https://github.com/jedisct1/dnscrypt-proxy
