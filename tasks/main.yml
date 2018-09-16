@@ -6,6 +6,13 @@
   tags:
     - dnscrypt
 
+- name: '[main] Check if distribution uses systemd init'
+  stat: path=/bin/systemctl
+  register: dnscrypt_systemd
+  tags:
+    - dnscrypt
+    - dnscrypt_systemd
+
 - name: '[main] Include systemd-related tasks, if distro is using systemd init'
   include_tasks: systemd.yml
   when: dnscrypt_systemd.stat.exists
