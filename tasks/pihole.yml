@@ -3,7 +3,7 @@
 - name: '[pihole] Generate /etc/dnsmasq.d/02-dnscrypt.conf'
   template: src=02-dnscrypt.conf.j2 dest=/etc/dnsmasq.d/02-dnscrypt.conf
   become: yes
-  notify: Restart dnsmasq
+  notify: Restart pihole-FTL
   tags:
     - dnscrypt
     - dnscrypt_pihole
@@ -14,7 +14,7 @@
     regexp: '^(PIHOLE_DNS_[0-9]=.*)'
     replace: '#\1'
   become: yes
-  notify: Restart dnsmasq
+  notify: Restart pihole-FTL
   tags:
     - dnscrypt
     - dnscrypt_pihole
@@ -25,7 +25,7 @@
     regexp: '^(server=.*)'
     replace: '#\1'
   become: yes
-  notify: Restart dnsmasq
+  notify: Restart pihole-FTL
   tags:
     - dnscrypt
     - dnscrypt_pihole

@@ -2,8 +2,8 @@
 # handlers file for ansible-dnscrypt
 
 # DNSMasq
-- name: Restart dnsmasq
-  service: name=dnsmasq state=restarted
+- name: Restart pihole-FTL
+  service: name=pihole-FTL state=restarted
   become: yes
   when: dnscrypt_on_pihole
 
