@@ -14,7 +14,7 @@
 #
 dnscrypt_arch: { archive: linux_arm64, dir: linux-arm64 }
 
-dnscrypt_default_version: 2.0.11 # Fallback version in case the website doesn't have info about latest version
+dnscrypt_default_version: 2.0.16 # Fallback version in case the website doesn't have info about latest version
 
 dnscrypt_on_pihole: no      # Is it dnscrypt on pihole installation? Will modify pihole config
 

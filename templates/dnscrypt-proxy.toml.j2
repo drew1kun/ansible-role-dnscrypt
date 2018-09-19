@@ -17,6 +17,18 @@ listen_addresses = ['{{ dnscrypt_ipv4_address }}:{{ dnscrypt_port }}', '[::1]:{{
 max_clients = 250
 
 
+## Switch to a non-privileged system user after listening sockets have been created.
+## Two processes will be running.
+## The first one will keep root privileges, but is only a supervisor, that does nothing
+## except create the sockets, manage the service, and restart it if it crashes.
+## The second process is the service itself, and that one will always run as a different
+## user.
+## Note (1): this feature is currently unsupported on Windows.
+## Note (2): this feature is not compatible with systemd socket activation.
+
+# user_name = 'nobody'
+
+
 ## Require servers (from static + remote sources) to satisfy specific properties
 # Use servers reachable over IPv4
 ipv4_servers = {{ dnscrypt_ipv4_servers }}
@@ -48,6 +60,13 @@ require_nofilter = {{ dnscrypt_require_nofilter }}
 ## (dnscrypt-proxy will always encrypt everything even using UDP), and can
 ## only increase latency.
 force_tcp = {{ dnscrypt_force_tcp }}
+
+
+## HTTP / SOCKS proxy
+## Uncomment the following line to route all TCP connections to a local Tor node
+## Tor doesn't support UDP, so set `force_tcp` to `true` as well.
+# proxy = "socks5://127.0.0.1:9050"
+
 
 ## How long a DNS query will wait for a response, in milliseconds
 timeout = 2500
