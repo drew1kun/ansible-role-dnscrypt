@@ -20,6 +20,4 @@ galaxy_info:
   - dnscrypt
   - dnscrypt_proxy
   - dnscrypt_proxy2
-
-dependencies: []
 ...

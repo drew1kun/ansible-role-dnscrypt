@@ -25,6 +25,7 @@ max_clients = 250
 ## user.
 ## Note (1): this feature is currently unsupported on Windows.
 ## Note (2): this feature is not compatible with systemd socket activation.
+## Note (3): when using -pidfile, the PID file directory must be writable by the new user
 
 # user_name = 'nobody'
 
@@ -132,6 +133,20 @@ fallback_resolver = '{{ dnscrypt_fallback_resolver }}'
 ## Never try to use the system DNS settings; unconditionally use the
 ## fallback resolver.
 ignore_system_dns = false
+
+
+## Maximum time (in seconds) to wait for network connectivity before
+## initializing the proxy.
+## Useful if the proxy is automatically started at boot, and network
+## connectivity is not guaranteed to be immediately available.
+## Use 0 to disable.
+netprobe_timeout = 30
+
+
+## Offline mode - Do not use any remote encrypted servers.
+## The proxy will remain fully functional to respond to queries that
+## plugins can handle directly (forwarding, cloaking, ...)
+# offline_mode = false
 
 
 ## Automatic log files rotation
