@@ -1,1 +1,4 @@
 server={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}
+{% if dnscrypt_require_dnssec == 'true' %}
+proxy-dnssec
+{% endif %}
