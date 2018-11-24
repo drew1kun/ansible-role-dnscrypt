@@ -62,9 +62,11 @@ None.
 Example Playbook
 ----------------
 
-    - hosts: raspberrypi
-      gather_facts: yes
-      roles: drew-kun.dnscrypt
+```yaml
+- hosts: raspberrypi
+  gather_facts: yes
+  roles: drew-kun.dnscrypt
+```
 
 License
 -------
