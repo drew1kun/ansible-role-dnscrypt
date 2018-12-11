@@ -4,12 +4,12 @@
     path: "{{ item }}"
     state: directory
   with_items:
-    - "{{ config_prefix|default('/') }}etc/dnscrypt-proxy/"
-    - /opt/dnscrypt-proxy/
+  - "{{ config_prefix|default('/') }}etc/dnscrypt-proxy/"
+  - /opt/dnscrypt-proxy/
   become: yes
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Retrive the latest dnscrypt-proxy versions for all architectures"
   uri:
@@ -17,8 +17,8 @@
   register: dnscrypt_latest_all_arch
   ignore_errors: true
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Set default dnscrypt-proxy assets only if failed retrieving the latest version"
   set_fact:
@@ -26,21 +26,21 @@
       failed: true
       json:
         assets:
-          - name: "dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
-            browser_download_url:
-              "https://github.com/jedisct1/dnscrypt-proxy/releases/download/{{ dnscrypt_default_version }}/dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
+        - name: "dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
+          browser_download_url:
+            "https://github.com/jedisct1/dnscrypt-proxy/releases/download/{{ dnscrypt_default_version }}/dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
   when: dnscrypt_latest_all_arch.failed
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Fall back to default dnscrypt-proxy version: {{ dnscrypt_default_version }}"
   set_fact:
     dnscrypt_latest_version: "{{ dnscrypt_default_version }}"
   when: dnscrypt_latest_all_arch.failed
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Find out the latest dnscrypt-proxy version for {{ dnscrypt_arch.archive }} architecture (no_log: yes)"
   set_fact:
@@ -50,12 +50,12 @@
   with_items: "{{ dnscrypt_latest_all_arch['json']['assets'] }}"
   no_log: yes  # prevent huge green or yellow output
   when:
-    - not dnscrypt_latest_all_arch.failed
-    - dnscrypt_arch.archive in item.name
-    - not item.name.endswith("minisig")
+  - not dnscrypt_latest_all_arch.failed
+  - dnscrypt_arch.archive in item.name
+  - not item.name.endswith("minisig")
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Download dnscrypt-proxy version: {{ dnscrypt_latest_version }} (no_log: yes)"
   unarchive:
@@ -67,18 +67,18 @@
   with_items: "{{ dnscrypt_latest_all_arch['json']['assets'] }}"
   when: dnscrypt_arch.archive in item.name and not item.name.endswith("minisig")
   notify:
-    - Restart dnscrypt-proxy.socket systemd unit
-    - Run 'dnscrypt-proxy -service restart'
+  - Restart dnscrypt-proxy.socket systemd unit
+  - Run 'dnscrypt-proxy -service restart'
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Symlink binary /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy to {{ dnscrypt_bin }}"
   file: src="/opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy" dest="{{ dnscrypt_bin }}" state=link
   become: yes
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Check dnscrypt-proxy binary capabilities for running it as unprivileged user"
   command: "setcap -v cap_net_bind_service=+pe /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
@@ -87,24 +87,24 @@
   failed_when: false
   register: dnscrypt_bin_cap
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Fix dnscrypt-proxy binary capabilities for running it as unprivileged user"
   command: "setcap cap_net_bind_service=+pe /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
   become: yes
   when: dnscrypt_bin_cap.rc != 0
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 
 - name: "[install] Generate /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy.toml configuration file"
   template: src=dnscrypt-proxy.toml.j2 dest="{{ dnscrypt_config }}"
   become: yes
   notify:
-    - Restart dnscrypt-proxy.socket systemd unit
-    - Run 'dnscrypt-proxy -service restart'
+  - Restart dnscrypt-proxy.socket systemd unit
+  - Run 'dnscrypt-proxy -service restart'
   tags:
-    - dnscrypt
-    - dnscrypt_install
+  - dnscrypt
+  - dnscrypt_install
 ...

@@ -5,8 +5,8 @@
   become: yes
   notify: Restart pihole-FTL
   tags:
-    - dnscrypt
-    - dnscrypt_pihole
+  - dnscrypt
+  - dnscrypt_pihole
 
 - name: '[pihole] Modify /etc/pihole/setupVars.conf'
   replace:
@@ -16,8 +16,8 @@
   become: yes
   notify: Restart pihole-FTL
   tags:
-    - dnscrypt
-    - dnscrypt_pihole
+  - dnscrypt
+  - dnscrypt_pihole
 
 - name: '[pihole] Modify /etc/dnsmasq.d/01-pihole.conf'
   replace:
@@ -27,7 +27,7 @@
   become: yes
   notify: Restart pihole-FTL
   tags:
-    - dnscrypt
-    - dnscrypt_pihole
+  - dnscrypt
+  - dnscrypt_pihole
 
 ...
