@@ -86,4 +86,3 @@ Andrew Shagayev | [e-mail](mailto:drewshg@gmail.com)
 [pihole-link]: https://pi-hole.net/
 [dnscrypt-proxy2-link]: https://github.com/jedisct1/dnscrypt-proxy
 [dnscrypt-arch-link]: https://github.com/jedisct1/dnscrypt-proxy/releases/latest
-

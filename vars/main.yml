@@ -1,3 +1,2 @@
 ---
 #dnscrypt_arch: "{{ archive: linux_arm64, dir: linux-arm64 if dnscrypt_architecture == 'linux-arm64' }}"
-
