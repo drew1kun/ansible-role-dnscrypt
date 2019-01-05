@@ -28,7 +28,9 @@
         assets:
         - name: "dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
           browser_download_url:
-            "https://github.com/jedisct1/dnscrypt-proxy/releases/download/{{ dnscrypt_default_version }}/dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
+            "https://github.com/jedisct1/dnscrypt-proxy/releases/download/\
+            {{ dnscrypt_default_version }}/\
+            dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
   when: dnscrypt_latest_all_arch.failed
   tags:
   - dnscrypt
@@ -42,7 +44,7 @@
   - dnscrypt
   - dnscrypt_install
 
-- name: "[install] Find out the latest dnscrypt-proxy version for {{ dnscrypt_arch.archive }} architecture (no_log: yes)"
+- name: "[install] Find the latest dnscrypt-proxy version for {{ dnscrypt_arch.archive }} architecture (no_log: yes)"
   set_fact:
     dnscrypt_latest_version: "{{ item['browser_download_url'].split('/')[7] }}"
 # another way to do this:
