@@ -1,3 +1,4 @@
+---
 galaxy_info:
   role_name: dnscrypt
   author: Andrew Shagayev
@@ -18,6 +19,6 @@ galaxy_info:
   - networking
   - dns
   - dnscrypt
-  - dnscrypt_proxy
-  - dnscrypt_proxy2
+  - proxy
+  - proxy2
 ...
