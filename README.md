@@ -1,4 +1,4 @@
-Ansible role: pihole
+Ansible role: dnscrypt
 =========
 
 [![MIT licensed][mit-badge]][mit-link]
