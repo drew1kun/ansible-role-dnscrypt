@@ -4,6 +4,9 @@
 ## The proxy will automatically pick the fastest, working servers from the list.
 ## Remove the leading # first to enable this; lines starting with # are ignored.
 # server_names = ['scaleway-fr', 'google', 'yandex']
+{% if dnscrypt_server_names %}
+server_names = ['{{ dnscrypt_server_names|join('\', \'')}}']
+{% endif %}
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Note: When using systemd socket activation, choose an empty set (i.e. [] ).
