@@ -38,6 +38,8 @@ dnscrypt_require_nolog: 'true'     # Server must not log user queries (declarati
 dnscrypt_require_nofilter: 'true'  # Server must not enforce its own blacklist (for parental control, ads blocking)
 dnscrypt_force_tcp: 'false'        # Always use TCP to connect to upstream servers. Useful for TOR. Otherwise use 'false'
 
+dnscrypt_server_names: # Optional list of servers to use. See https://dnscrypt.info/public-servers for the values.
+
 # 9.9.9.9:53 -- Quad9 DNSSec anycast privacy oriented Google alternative
 # 114.114.114.114:53 -- for people in China.
 dnscrypt_fallback_resolver: 9.9.9.9:53 # non-encrypted fallback resolver. Only used if DNS config doesn't work

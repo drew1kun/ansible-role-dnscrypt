@@ -53,6 +53,7 @@ For more detailed dnscrypt proxy configuration please study and modify the *dnsc
 | **dnscrypt_require_nofilter** | Server must NOT enforce its own blacklist (for parental control, ads blocking) | `'true'` |
 | **dnscrypt_force_tcp** | Always use TCP to connect to upstream servers. Useful for TOR. | `'false'` |
 | **dnscrypt_fallback_resolver** | non-encrypted fallback resolver. Only used if DNS config doesn't work. `114.114.114.114:53` for people in China | `9.9.9.9:5` |
+| **dnscrypt_server_names** | List of upstream servers to use. See server_names option in dnscrypt-proxy documentation | |
 
 Dependencies
 ------------
