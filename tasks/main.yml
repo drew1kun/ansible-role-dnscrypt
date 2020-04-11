@@ -1,8 +1,8 @@
 ---
 # tasks file for ansible-dnscrypt
 
-- name: '[main] Include dnscrypt-proxy install-related tasks'
-  include_tasks: install.yml
+- name: '[main] Import dnscrypt-proxy install-related tasks'
+  import_tasks: install.yml
   tags:
   - dnscrypt
 
