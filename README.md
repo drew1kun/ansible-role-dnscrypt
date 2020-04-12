@@ -4,6 +4,10 @@ Ansible role: dnscrypt
 [![MIT licensed][mit-badge]][mit-link]
 [![Galaxy Role][role-badge]][galaxy-link]
 
+**[DEPRECATED]**
+
+*(Left here for reference only)*
+
 Ansible role which installs and configures [DNSCrypt-proxy2][dnscrypt-proxy2-link].
 
 The role achieves the following:
