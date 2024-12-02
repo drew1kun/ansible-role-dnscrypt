@@ -73,13 +73,14 @@ force_tcp = {{ dnscrypt_force_tcp }}
 
 
 ## How long a DNS query will wait for a response, in milliseconds
-timeout = 2500
+timeout = {{ dnscrypt_timeout }}
 
 ## Keepalive for HTTP (HTTPS, HTTP/2) queries, in seconds
 keepalive = 30
 
 ## Load-balancing strategy: 'p2' (default), 'ph', 'fastest' or 'random'
-# lb_strategy = 'p2'
+lb_strategy = {{ dnscrypt_lb_strategy }}
+lb_estimator = {{ dnscrypt_lb_estimator }}
 
 ## Log level (0-6, default: 2 - 0 is very verbose, 6 only contains fatal errors)
 # log_level = 2
@@ -92,7 +93,6 @@ use_syslog = true
 
 ## Delay, in minutes, after which certificates are reloaded
 cert_refresh_delay = 240
-
 
 ## DNSCrypt: Create a new, unique key for every single DNS query
 ## This may improve privacy but can also have a significant impact on CPU usage
@@ -131,11 +131,13 @@ cert_refresh_delay = 240
 ## A resolver supporting DNSSEC is recommended. This may become mandatory.
 ##
 ## People in China may need to use 114.114.114.114:53 here.
-fallback_resolver = '{{ dnscrypt_fallback_resolver }}'
+
+bootstrap_resolvers = ['{{ dnscrypt_bootstrap_resolvers|join('\', \'')}}']
+# fallback_resolver = '{{ dnscrypt_fallback_resolver }}'
 
 ## Never try to use the system DNS settings; unconditionally use the
 ## fallback resolver.
-ignore_system_dns = false
+ignore_system_dns = {{ dnscrypt_ignore_system_dns }} 
 
 
 ## Maximum time (in seconds) to wait for network connectivity before
@@ -143,8 +145,8 @@ ignore_system_dns = false
 ## Useful if the proxy is automatically started at boot, and network
 ## connectivity is not guaranteed to be immediately available.
 ## Use 0 to disable.
-netprobe_timeout = 30
-
+netprobe_timeout = {{ dnscrypt_netprobe_timeout }}
+netprobe_address = '{{ dnscrypt_netprobe_address }}'
 
 ## Offline mode - Do not use any remote encrypted servers.
 ## The proxy will remain fully functional to respond to queries that
@@ -194,10 +196,10 @@ block_ipv6 = false
 cache = true
 
 ## Cache size
-cache_size = 512
+cache_size = {{ dnscrypt_cache_size }}
 
 ## Minimum TTL for cached entries
-cache_min_ttl = 600
+cache_min_ttl = {{ dnscrypt_cache_min_ttl }}
 
 ## Maximum TTL for cached entries
 cache_max_ttl = 86400
@@ -338,11 +340,11 @@ cache_neg_max_ttl = 600
 [sources]
   ## An example of a remote source
   [sources.'public-resolvers']
-  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v2/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v2/public-resolvers.md']
-  cache_file = 'public-resolvers.md'
-  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
-  refresh_delay = 72
-  prefix = ''
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v2/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v2/public-resolvers.md']
+    cache_file = 'public-resolvers.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 72
+    prefix = ''
 
   ## Another example source, with resolvers censoring some websites not appropriate for children
   ## This is a subset of the `public-resolvers` list, so enabling both is useless
@@ -350,6 +352,33 @@ cache_neg_max_ttl = 600
   #  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v2/parental-control.md', 'https://download.dnscrypt.info/resolvers-list/v2/parental-control.md']
   #  cache_file = 'parental-control.md'
   #  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+
+  [sources.'relays']
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://download.dnscrypt.net/resolvers-list/v3/relays.md']
+    cache_file = 'relays.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 72
+    prefix = ''
+
+  [sources.dnscry-pt-resolvers]
+    urls = ["https://www.dnscry.pt/resolvers.md"]
+    minisign_key = "RWQM31Nwkqh01x88SvrBL8djp1NH56Rb4mKLHz16K7qsXgEomnDv6ziQ"
+    cache_file = "dnscry.pt-resolvers.md"
+    refresh_delay = 72
+    prefix = "dnscry.pt-"
+
+[broken_implementations]
+
+fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familyshield-ipv6', 'cleanbrowsing-adult', 'cleanbrowsing-adult-ipv6', 'cleanbrowsing-family', 'cleanbrowsing-family-ipv6', 'cleanbrowsing-security', 'cleanbrowsing-security-ipv6']
+
+[doh_client_x509_auth]
+
+[anonymized_dns]
+
+routes = [
+   { server_name=*, via=['anon-scaleway-ams','anon-sth-se','anon-v.dnscrypt.uk-ipv4,dnscry.pt-anon-madrid-ipv4','dnscry.pt-anon-munich-ipv4'] }
+   { server_name=*, via=['{{ dnscrypt_anonymizer_server_names|join('\', \'')}}'] }
+ ]
 
 ## Optional, local, static list of additional servers
 ## Mostly useful for testing your own servers.
