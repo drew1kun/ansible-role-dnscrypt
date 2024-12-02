@@ -2,34 +2,36 @@
 # tasks file for ansible-dnscrypt
 
 - name: '[main] Import dnscrypt-proxy install-related tasks'
-  import_tasks: install.yml
+  ansible.builtin.import_tasks: install.yml
   tags:
-  - dnscrypt
+    - dnscrypt
 
 - name: '[main] Check if distribution uses systemd init'
-  stat: path=/bin/systemctl
+  ansible.builtin.stat:
+    path: /bin/systemctl
   register: dnscrypt_systemd
   tags:
-  - dnscrypt
-  - dnscrypt_systemd
+    - dnscrypt
+    - dnscrypt_systemd
 
 - name: '[main] Include systemd-related tasks, if distro is using systemd init'
-  include_tasks: systemd.yml
+  ansible.builtin.include_tasks: systemd.yml
   when: dnscrypt_systemd.stat.exists
   tags:
-  - dnscrypt
-  - dnscrypt_systemd
+    - dnscrypt
+    - dnscrypt_systemd
 
 # Modify PIHOLE
 - name: '[main] Include pihole-related tasks'
-  include_tasks: pihole.yml
+  ansible.builtin.include_tasks: pihole.yml
   when: dnscrypt_on_pihole
   tags:
-  - dnscrypt
-  - dnscrypt_pihole
+    - dnscrypt
+    - dnscrypt_pihole
 
-- meta: flush_handlers
+- name: '[main] Flush handlers'
+  ansible.builtin.meta: flush_handlers
   tags:
-  - dnscrypt
-  - dnscrypt_pihole
+    - dnscrypt
+    - dnscrypt_pihole
 ...
