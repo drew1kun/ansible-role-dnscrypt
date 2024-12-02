@@ -59,6 +59,20 @@
   tags:
     - dnscrypt
     - dnscrypt_install
+- name: Debug dnscrypt_latest_version
+  ansible.builtin.debug:
+    var: dnscrypt_latest_version
+  tags:
+    - dnscrypt
+    - dnscrypt_install
+
+- name: Debug - is dnscrypt_latest_version equal or higher then 2.0.38?
+  ansible.builtin.debug:
+    msg: "dnscrypt_latest_version is equal or higher then 2.0.38"
+  when: dnscrypt_latest_version | version_compare('2.0.38', '>=')
+  tags:
+    - dnscrypt
+    - dnscrypt_install
 
 - name: "[install] Download dnscrypt-proxy version: {{ dnscrypt_latest_version }}"
   ansible.builtin.unarchive:
