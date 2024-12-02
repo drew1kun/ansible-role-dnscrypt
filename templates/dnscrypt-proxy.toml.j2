@@ -10,10 +10,20 @@ server_names = ['{{ dnscrypt_server_names|join('\', \'')}}']
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Note: When using systemd socket activation, choose an empty set (i.e. [] ).
+## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
+## Example with both IPv4 and IPv6:
+## listen_addresses = ['[::1]:53']
+##
+## To listen to all IPv4 addresses, use `listen_addresses = ['0.0.0.0:53']`
+## To listen to all IPv4+IPv6 addresses, use `listen_addresses = ['[::]:53']`
 {% if dnscrypt_sysd_socket_only %}
 listen_addresses = []
 {% else %}
-listen_addresses = ['{{ dnscrypt_ipv4_address }}:{{ dnscrypt_port }}', '[::1]:{{ dnscrypt_port }}']
+{% if dnscrypt_ipv4_address == '127.0.0.1' %}
+listen_addresses = ['[::1]:{{ dnscrypt_port }}']
+{% else %}
+listen_addresses = ['{{ dnscrypt_ipv4_address }}:{{ dnscrypt_port }}', '[::]:{{ dnscrypt_port }}']
+{% endif %}
 {% endif %}
 
 ## Maximum number of simultaneous client connections to accept
@@ -377,10 +387,29 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 [doh_client_x509_auth]
 
 [anonymized_dns]
+## !!! THESE ARE JUST EXAMPLES !!!
+##
+## Review the list of available relays from the "relays.md" file, and, for each
+## server you want to use, define the relays you want connections to go through.
+##
+## Carefully choose relays and servers so that they are run by different entities.
+##
+## "server_name" can also be set to "*" to define a default route, for all servers:
+## { server_name='*', via=['anon-example-1', 'anon-example-2'] }
+##
+## If a route is ["*"], the proxy automatically picks a relay on a distinct network.
+## { server_name='*', via=['*'] } is also an option, but is likely to be suboptimal.
+##
+## Manual selection is always recommended over automatic selection, so that you can
+## select (relay,server) pairs that work well and fit your own criteria (close by or
+## in different countries, operated by different entities, on distinct ISPs...)
 
+# routes = [
+#    { server_name='example-server-1', via=['anon-example-1', 'anon-example-2'] },
+#    { server_name='example-server-2', via=['sdns://gRIxMzcuNzQuMjIzLjIzNDo0NDM'] }
+# ]
 routes = [
-   { server_name=*, via=['anon-scaleway-ams','anon-sth-se','anon-v.dnscrypt.uk-ipv4,dnscry.pt-anon-madrid-ipv4','dnscry.pt-anon-munich-ipv4'] }
-   { server_name=*, via=['{{ dnscrypt_anonymizer_server_names|join('\', \'')}}'] }
+   { server_name='*', via=['{{ dnscrypt_anonymizer_server_names|join('\', \'')}}'] }
  ]
 
 ## Optional, local, static list of additional servers

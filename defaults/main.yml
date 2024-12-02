@@ -36,7 +36,7 @@ dnscrypt_require_dnssec: 'true'    # Requre upstream resolver to support DNSSEC 
 dnscrypt_require_nolog: 'true'     # Server must not log user queries (declarative).
 dnscrypt_require_nofilter: 'true'  # Server must not enforce its own blacklist (for parental control, ads blocking)
 dnscrypt_force_tcp: 'false'        # Always use TCP to connect to upstream servers. Useful for TOR. Otherwise use 'false'
-dnscrypt_lb_strategy: 'p2'         # Load balancing strategy. 'p2' is the default, 'ph' is the other option.
+dnscrypt_lb_strategy: "'p2'"         # Load balancing strategy. 'p2' is the default, 'ph' is the other option.
 dnscrypt_lb_estimator: "true"
 
 dnscrypt_server_names: # Optional list of servers to use. See https://dnscrypt.info/public-servers for the values.
