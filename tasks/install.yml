@@ -1,112 +1,121 @@
 ---
 - name: "[install] Ensure that the required directories exist"
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
+    mode: '0755'
   with_items:
-  - "{{ config_prefix|default('/') }}etc/dnscrypt-proxy/"
-  - /opt/dnscrypt-proxy/
-  become: yes
+    - "{{ config_prefix | default('/') }}etc/dnscrypt-proxy/"
+    - /opt/dnscrypt-proxy/
+  become: true
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
-- name: "[install] Retrive the latest dnscrypt-proxy versions for all architectures"
-  uri:
+- name: "[install] Retrieve the latest dnscrypt-proxy versions for all architectures"
+  ansible.builtin.uri:
     url: https://api.github.com/repos/jedisct1/dnscrypt-proxy/releases/latest
   register: dnscrypt_latest_all_arch
   ignore_errors: true
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
 - name: "[install] Set default dnscrypt-proxy assets only if failed retrieving the latest version"
-  set_fact:
+  ansible.builtin.set_fact:
     dnscrypt_latest_all_arch:
       failed: true
       json:
         assets:
-        - name: "dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
-          browser_download_url:
-            "https://github.com/jedisct1/dnscrypt-proxy/releases/download/\
-            {{ dnscrypt_default_version }}/\
-            dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
+          - name: "dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
+            browser_download_url:
+              "https://github.com/jedisct1/dnscrypt-proxy/releases/download/\
+              {{ dnscrypt_default_version }}/\
+              dnscrypt-proxy-{{ dnscrypt_arch.archive }}-{{ dnscrypt_default_version }}.tar.gz"
   when: dnscrypt_latest_all_arch.failed
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
 - name: "[install] Fall back to default dnscrypt-proxy version: {{ dnscrypt_default_version }}"
-  set_fact:
+  ansible.builtin.set_fact:
     dnscrypt_latest_version: "{{ dnscrypt_default_version }}"
   when: dnscrypt_latest_all_arch.failed
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
-- name: "[install] Find the latest dnscrypt-proxy version for {{ dnscrypt_arch.archive }} architecture (no_log: yes)"
-  set_fact:
+- name: "[install] Find the latest dnscrypt-proxy version for architecture {{ dnscrypt_arch.archive }} "
+  ansible.builtin.set_fact:
     dnscrypt_latest_version: "{{ item['browser_download_url'].split('/')[7] }}"
 # another way to do this:
 #    dnscrypt_latest_version: "{{ dnscrypt_latest_version | regex_replace('^.*download\\/(.*)\\/.*$', '\\1') }}"
   with_items: "{{ dnscrypt_latest_all_arch['json']['assets'] }}"
-  no_log: yes  # prevent huge green or yellow output
+  no_log: true  # prevent huge green or yellow output
   when:
-  - not dnscrypt_latest_all_arch.failed
-  - dnscrypt_arch.archive in item.name
-  - not item.name.endswith("minisig")
+    - not dnscrypt_latest_all_arch.failed
+    - dnscrypt_arch.archive in item.name
+    - not item.name.endswith("minisig")
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
-- name: "[install] Download dnscrypt-proxy version: {{ dnscrypt_latest_version }} (no_log: yes)"
-  unarchive:
-    remote_src: yes
+- name: "[install] Download dnscrypt-proxy version: {{ dnscrypt_latest_version }}"
+  ansible.builtin.unarchive:
+    remote_src: true
     src: "{{ item['browser_download_url'] }}"
     dest: /opt/dnscrypt-proxy
-  become: yes
-  no_log: yes  # prevent huge green or yellow output
+  become: true
+  no_log: true  # prevent huge green or yellow output
   with_items: "{{ dnscrypt_latest_all_arch['json']['assets'] }}"
   when: dnscrypt_arch.archive in item.name and not item.name.endswith("minisig")
   notify:
-  - Restart dnscrypt-proxy.socket systemd unit
-  - Run 'dnscrypt-proxy -service restart'
+    - Restart dnscrypt-proxy.socket systemd unit
+    - Run 'dnscrypt-proxy -service restart'
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
-- name: "[install] Symlink binary /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy to {{ dnscrypt_bin }}"
-  file: src="/opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy" dest="{{ dnscrypt_bin }}" state=link
-  become: yes
+- name: "[install] Symlink binary {{ dnscrypt_bin }}"
+  ansible.builtin.file:
+    src: "/opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
+    dest: "{{ dnscrypt_bin }}"
+    state: link
+  become: true
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
 - name: "[install] Check dnscrypt-proxy binary capabilities for running it as unprivileged user"
-  command: "setcap -v cap_net_bind_service=+pe /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
-  become: yes
+  ansible.builtin.command:
+    cmd: "setcap -v cap_net_bind_service=+pe /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
+  become: true
   changed_when: false
   failed_when: false
   register: dnscrypt_bin_cap
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
 - name: "[install] Fix dnscrypt-proxy binary capabilities for running it as unprivileged user"
-  command: "setcap cap_net_bind_service=+pe /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
-  become: yes
+  ansible.builtin.command:
+    cmd: "setcap cap_net_bind_service=+pe /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
+  become: true
   when: dnscrypt_bin_cap.rc != 0
+  changed_when: false
   tags:
-  - dnscrypt
-  - dnscrypt_install
+    - dnscrypt
+    - dnscrypt_install
 
-- name: "[install] Generate /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy.toml configuration file"
-  template: src=dnscrypt-proxy.toml.j2 dest="{{ dnscrypt_config }}"
-  become: yes
+- name: "[install] Generate dnscrypt-proxy.toml configuration file"
+  ansible.builtin.template:
+    src: dnscrypt-proxy.toml.j2
+    dest: "{{ dnscrypt_config }}"
+    mode: '0644'
+  become: true
   notify:
-  - Restart dnscrypt-proxy.socket systemd unit
-  - Run 'dnscrypt-proxy -service restart'
+    - Restart dnscrypt-proxy.socket systemd unit
+    - Run 'dnscrypt-proxy -service restart'
   tags:
-  - dnscrypt
-  - dnscrypt_install
-...
+    - dnscrypt
+    - dnscrypt_install
