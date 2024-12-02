@@ -16,13 +16,12 @@ dnscrypt_arch: { archive: linux_arm64, dir: linux-arm64 }
 
 dnscrypt_default_version: 2.0.17 # Fallback version in case the website doesn't have info about latest version
 
-dnscrypt_on_pihole: no      # Is it dnscrypt on pihole installation? Will modify pihole config
+dnscrypt_on_pihole: false      # Is it dnscrypt on pihole installation? Will modify pihole config
 
 dnscrypt_bin: /usr/local/bin/dnscrypt-proxy  # where to put dnscrypt binary
 dnscrypt_config: /etc/dnscrypt-proxy/dnscrypt-proxy.toml # where to store dnscrypt config
 
-dnscrypt_sysd_socket_only: yes  # Use ONLY Systemd socket activation of dnscrypt-proxy.service (used in dnscrypt-proxy.toml)
-
+dnscrypt_sysd_socket_only: true  # Use ONLY Systemd socket activation of dnscrypt-proxy.service (used in dnscrypt-proxy.toml)
 
 # DNSCrypt main configruation file variables (Check templates/dnscrypt-proxy.toml.j2)
 dnscrypt_ipv4_address: 127.0.0.1
