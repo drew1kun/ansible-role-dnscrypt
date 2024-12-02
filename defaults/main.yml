@@ -44,7 +44,7 @@ dnscrypt_anonymizer_server_names: # Optional list of anonymizer servers to use. 
 # 9.9.9.9:53 -- Quad9 DNSSec anycast privacy oriented Google alternative
 # 114.114.114.114:53 -- for people in China.
 dnscrypt_bootstrap_resolvers: ['9.9.9.9:53', '8.8.8.8:53']
-# dnscrypt_fallback_resolver: 9.9.9.9:53 # non-encrypted fallback resolver. Only used if DNS config doesn't work
+dnscrypt_fallback_resolver: 9.9.9.9:53 # non-encrypted fallback resolver. Only used if DNS config doesn't work
 dnscrypt_ignore_system_dns: 'false'
 dnscrypt_netprobe_address: '9.9.9.9:53'
 dnscrypt_cache_size: 4096

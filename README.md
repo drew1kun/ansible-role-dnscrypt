@@ -63,6 +63,13 @@ For more detailed dnscrypt proxy configuration please study and modify the *dnsc
 | `dnscrypt_force_tcp` | Always use TCP to connect to upstream servers. Useful for TOR. | `'false'` |
 | `dnscrypt_fallback_resolver` | non-encrypted fallback resolver. Only used if DNS config doesn't work. `114.114.114.114:53` for people in China | `9.9.9.9:5` |
 | `dnscrypt_server_names` | List of upstream servers to use. See server_names option in dnscrypt-proxy documentation |
+| `dnscrypt_anonymizer_server_names` | List of anonymizer servers to use | `[]` |
+| `dnscrypt_bootstrap_resolvers` | List of bootstrap resolvers | `['9.9.9.9:53', '8.8.8.8:53']` |
+| `dnscrypt_cache_size` | Size of the DNS cache | `4096` |
+| `dnscrypt_cache_min_ttl` | Minimum TTL for cached entries | `2400` |
+| `dnscrypt_ignore_system_dns` | Ignore system DNS settings | `'false'` |
+| `dnscrypt_netprobe_timeout` | Maximum time to wait for network connectivity before initializing the proxy | `60` |
+| `dnscrypt_netprobe_address` | Address to probe for network connectivity | `'9.9.9.9:53'` |
 
 Dependencies
 ----

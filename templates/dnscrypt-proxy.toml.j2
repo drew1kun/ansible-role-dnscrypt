@@ -133,7 +133,7 @@ cert_refresh_delay = 240
 ## People in China may need to use 114.114.114.114:53 here.
 
 bootstrap_resolvers = ['{{ dnscrypt_bootstrap_resolvers|join('\', \'')}}']
-# fallback_resolver = '{{ dnscrypt_fallback_resolver }}'
+fallback_resolver = '{{ dnscrypt_fallback_resolver }}'
 
 ## Never try to use the system DNS settings; unconditionally use the
 ## fallback resolver.
