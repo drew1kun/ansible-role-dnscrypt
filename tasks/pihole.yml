@@ -1,17 +1,6 @@
 ---
 # Modify PIHOLE
-- name: '[pihole] Generate /etc/dnsmasq.d/02-dnscrypt.conf'
-  ansible.builtin.template:
-    src: 02-dnscrypt.conf.j2
-    dest: /etc/dnsmasq.d/02-dnscrypt.conf
-    mode: '0644'
-  become: true
-  notify: Restart pihole-FTL
-  tags:
-    - dnscrypt
-    - dnscrypt_pihole
-
-- name: '[pihole] Modify /etc/pihole/setupVars.conf'
+- name: '[pihole] Comment all `PIHOLE_DNS_[0-9]` entries in /etc/pihole/setupVars.conf'
   ansible.builtin.replace:
     path: /etc/pihole/setupVars.conf
     regexp: '^(PIHOLE_DNS_[0-9]=.*)'
@@ -22,11 +11,35 @@
     - dnscrypt
     - dnscrypt_pihole
 
-- name: '[pihole] Modify /etc/dnsmasq.d/01-pihole.conf'
+- name: '[pihole] Ensure dnscrypt server is set in /etc/pihole/setupVars.conf'
+  ansible.builtin.lineinfile:
+    path: /etc/pihole/setupVars.conf
+    regexp: '^PIHOLE_DNS_[0-9]='
+    line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
+    state: present
+  become: true
+  notify: Restart pihole-FTL
+  tags:
+    - dnscrypt
+    - dnscrypt_pihole
+
+- name: '[pihole] comment all `server=` entries /etc/dnsmasq.d/01-pihole.conf'
   ansible.builtin.replace:
     path: /etc/dnsmasq.d/01-pihole.conf
     regexp: '^(server=.*)'
     replace: '#\1'
+  become: true
+  notify: Restart pihole-FTL
+  tags:
+    - dnscrypt
+    - dnscrypt_pihole
+
+- name: '[pihole] Ensure dnscrypt server is configured in /etc/dnsmasq.d/01-pihole.conf'
+  ansible.builtin.lineinfile:
+    path: /etc/dnsmasq.d/01-pihole.conf
+    regexp: '^server={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
+    line: 'server={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
+    state: present
   become: true
   notify: Restart pihole-FTL
   tags:
