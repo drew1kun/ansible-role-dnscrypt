@@ -9,20 +9,22 @@
   become: true
   when: dnscrypt_on_pihole
 
-- name: Restart dnscrypt-proxy service
-  ansible.builtin.service:
-    name: dnscrypt-proxy
-    state: restarted
-  when: not dnscrypt_systemd.stat.exists
+# No SystemD
+- name: Run 'dnscrypt-proxy -service restart'
+  ansible.builtin.command:
+    cmd: "{{ dnscrypt_bin }} -service restart"
   become: true
+  changed_when: false
+  when: not dnscrypt_systemd.stat.exists
 
-- name: Stop dnscrypt-proxy service
-  ansible.builtin.service:
-    name: dnscrypt-proxy
-    state: stopped
+# SystemD
+- name: Make sure built-in dnscrypt-proxy service is stopped, running 'dnscrypt-proxy -service stop'
+  ansible.builtin.command:
+    cmd: "{{ dnscrypt_bin }} -service stop"
+    creates: /var/run/dnscrypt-proxy.pid
   become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
-  when: dnscrypt_systemd.stat.exists
+  when: not dnscrypt_systemd.stat.exists
 
 - name: Make sure dnscrypt-proxy.service is stopped before restarting dnscrypt-proxy.socket
   ansible.builtin.service:
@@ -30,6 +32,7 @@
     state: stopped
   become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
+  when: dnscrypt_systemd.stat.exists
 
 - name: Reload systemd daemon
   ansible.builtin.systemd:
@@ -46,12 +49,4 @@
   become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
   when: dnscrypt_systemd.stat.exists
-
-- name: Restart dnscrypt-proxy.socket
-  ansible.builtin.service:
-    name: dnscrypt-proxy.socket
-    enabled: true
-    state: restarted
-  become: true
-  listen: Restart dnscrypt-proxy.socket systemd unit
-  when: dnscrypt_systemd.stat.exists
+...
