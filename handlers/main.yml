@@ -3,38 +3,55 @@
 
 # DNSMasq
 - name: Restart pihole-FTL
-  service: name=pihole-FTL state=restarted
-  become: yes
+  ansible.builtin.service:
+    name: pihole-FTL
+    state: restarted
+  become: true
   when: dnscrypt_on_pihole
 
-# No SystemD
-- name: Run 'dnscrypt-proxy -service restart'
-  command: "{{ dnscrypt_bin }} -service restart"
-  become: yes
+- name: Restart dnscrypt-proxy service
+  ansible.builtin.service:
+    name: dnscrypt-proxy
+    state: restarted
   when: not dnscrypt_systemd.stat.exists
+  become: true
 
-# SystemD
-- name: Make sure built-in dnscrypt-proxy service is stopped, runing 'dnscrypt-proxy -service stop'
-  command: "{{ dnscrypt_bin }} -service stop"
-  become: yes
+- name: Stop dnscrypt-proxy service
+  ansible.builtin.service:
+    name: dnscrypt-proxy
+    state: stopped
+  become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
   when: dnscrypt_systemd.stat.exists
 
 - name: Make sure dnscrypt-proxy.service is stopped before restarting dnscrypt-proxy.socket
-  service: name=dnscrypt-proxy.service state=stopped
-  become: yes
+  ansible.builtin.service:
+    name: dnscrypt-proxy.service
+    state: stopped
+  become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
-  when: dnscrypt_systemd.stat.exists
 
 - name: Reload systemd daemon
-  systemd: daemon_reload=yes
-  become: yes
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
   when: dnscrypt_systemd.stat.exists
 
 - name: Restart dnscrypt-proxy.socket
-  service: name=dnscrypt-proxy.socket enabled=yes state=restarted
-  become: yes
+  ansible.builtin.service:
+    name: dnscrypt-proxy.socket
+    enabled: true
+    state: restarted
+  become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
   when: dnscrypt_systemd.stat.exists
-...
+
+- name: Restart dnscrypt-proxy.socket
+  ansible.builtin.service:
+    name: dnscrypt-proxy.socket
+    enabled: true
+    state: restarted
+  become: true
+  listen: Restart dnscrypt-proxy.socket systemd unit
+  when: dnscrypt_systemd.stat.exists
