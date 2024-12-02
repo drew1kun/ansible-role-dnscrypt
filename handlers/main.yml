@@ -24,7 +24,7 @@
     creates: /var/run/dnscrypt-proxy.pid
   become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
-  when: not dnscrypt_systemd.stat.exists
+  when: dnscrypt_systemd.stat.exists
 
 - name: Make sure dnscrypt-proxy.service is stopped before restarting dnscrypt-proxy.socket
   ansible.builtin.service:
