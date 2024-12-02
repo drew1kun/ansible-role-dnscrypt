@@ -132,8 +132,11 @@ cert_refresh_delay = 240
 ##
 ## People in China may need to use 114.114.114.114:53 here.
 
+{% if dnscrypt_latest_version is version('2.0.38', '>=') %}
 bootstrap_resolvers = ['{{ dnscrypt_bootstrap_resolvers|join('\', \'')}}']
+{% else %}
 fallback_resolver = '{{ dnscrypt_fallback_resolver }}'
+{% endif %}
 
 ## Never try to use the system DNS settings; unconditionally use the
 ## fallback resolver.
