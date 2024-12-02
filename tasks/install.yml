@@ -69,7 +69,7 @@
 - name: Debug - is dnscrypt_latest_version equal or higher then 2.0.38?
   ansible.builtin.debug:
     msg: "dnscrypt_latest_version is equal or higher then 2.0.38"
-  when: dnscrypt_latest_version | version_compare('2.0.38', '>=')
+  when: dnscrypt_latest_version is version('2.0.38', '>=')
   tags:
     - dnscrypt
     - dnscrypt_install
