@@ -1,10 +1,10 @@
 ---
-# Modify PIHOLE
-- name: '[pihole] Comment all `PIHOLE_DNS_[0-9]` entries in /etc/pihole/setupVars.conf'
-  ansible.builtin.replace:
+- name: '[pihole] Remove duplicate `PIHOLE_DNS_[0-9]` entries in /etc/pihole/setupVars.conf'
+  ansible.builtin.lineinfile:
     path: /etc/pihole/setupVars.conf
-    regexp: '^(PIHOLE_DNS_[0-9]=.*)'
-    replace: '#\1'
+    regexp: '^PIHOLE_DNS_[0-9]='
+    state: absent
+    backup: true
   become: true
   notify: Restart pihole-FTL
   tags:
@@ -23,18 +23,20 @@
     - dnscrypt
     - dnscrypt_pihole
 
-- name: '[pihole] comment all `server=` entries /etc/dnsmasq.d/01-pihole.conf'
-  ansible.builtin.replace:
+- name: '[pihole] Remove duplicate `server=` entries in /etc/dnsmasq.d/01-pihole.conf'
+  ansible.builtin.lineinfile:
     path: /etc/dnsmasq.d/01-pihole.conf
-    regexp: '^(server=.*)'
-    replace: '#\1'
+    regexp: '^server='
+    line: ''
+    state: absent
+    backup: true
   become: true
   notify: Restart pihole-FTL
   tags:
     - dnscrypt
     - dnscrypt_pihole
 
-- name: '[pihole] Ensure dnscrypt server is configured in /etc/dnsmasq.d/01-pihole.conf'
+- name: '[pihole] Ensure unique dnscrypt server is configured in /etc/dnsmasq.d/01-pihole.conf'
   ansible.builtin.lineinfile:
     path: /etc/dnsmasq.d/01-pihole.conf
     regexp: '^server={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
