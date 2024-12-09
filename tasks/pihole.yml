@@ -25,7 +25,7 @@
         line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
         state: present
         backup: true
-        notify: Restart pihole-FTL
+      notify: Restart pihole-FTL
 
     - name: '[pihole] Add remaining PIHOLE_DNS_ entries'
       ansible.builtin.lineinfile:
