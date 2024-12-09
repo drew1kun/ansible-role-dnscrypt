@@ -1,6 +1,6 @@
 ---
 
-  role_name: dnscrypt
+  name: dnscrypt
   author: Andrew Shagayev
   description: Role for automated dnscrypt-proxy2 installation
 
