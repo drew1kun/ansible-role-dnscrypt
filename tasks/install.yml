@@ -7,7 +7,6 @@
   with_items:
     - "{{ config_prefix | default('/') }}etc/dnscrypt-proxy/"
     - /opt/dnscrypt-proxy/
-  become: true
   tags:
     - dnscrypt
     - dnscrypt_install
@@ -65,7 +64,6 @@
     remote_src: true
     src: "{{ item['browser_download_url'] }}"
     dest: /opt/dnscrypt-proxy
-  become: true
   no_log: true  # prevent huge green or yellow output
   with_items: "{{ dnscrypt_latest_all_arch['json']['assets'] }}"
   when: dnscrypt_arch.archive in item.name and not item.name.endswith("minisig")
@@ -81,7 +79,6 @@
     src: "/opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
     dest: "{{ dnscrypt_bin }}"
     state: link
-  become: true
   tags:
     - dnscrypt
     - dnscrypt_install
@@ -89,7 +86,6 @@
 - name: "[install] Check dnscrypt-proxy binary capabilities for running it as unprivileged user"
   ansible.builtin.command:
     cmd: "setcap -v cap_net_bind_service=+pe /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
-  become: true
   changed_when: false
   failed_when: false
   register: dnscrypt_bin_cap
@@ -100,7 +96,6 @@
 - name: "[install] Fix dnscrypt-proxy binary capabilities for running it as unprivileged user"
   ansible.builtin.command:
     cmd: "setcap cap_net_bind_service=+pe /opt/dnscrypt-proxy/{{ dnscrypt_arch.dir }}/dnscrypt-proxy"
-  become: true
   when: dnscrypt_bin_cap.rc != 0
   changed_when: false
   tags:
@@ -112,7 +107,6 @@
     src: dnscrypt-proxy.toml.j2
     dest: "{{ dnscrypt_config }}"
     mode: '0644'
-  become: true
   notify:
     - Restart dnscrypt-proxy.socket systemd unit
     - Run 'dnscrypt-proxy -service restart'

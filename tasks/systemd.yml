@@ -7,7 +7,6 @@
     owner: root
     group: root
     mode: '0644'
-  become: true
   notify: Restart dnscrypt-proxy.socket systemd unit
   tags:
     - dnscrypt
@@ -20,7 +19,6 @@
     owner: root
     group: root
     mode: '0644'
-  become: true
   notify: Restart dnscrypt-proxy.socket systemd unit
   tags:
     - dnscrypt

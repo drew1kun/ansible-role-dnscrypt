@@ -6,14 +6,12 @@
   ansible.builtin.service:
     name: pihole-FTL
     state: restarted
-  become: true
   when: dnscrypt_on_pihole
 
 # No SystemD
 - name: Run 'dnscrypt-proxy -service restart'
   ansible.builtin.command:
     cmd: "{{ dnscrypt_bin }} -service restart"
-  become: true
   changed_when: false
   when: not dnscrypt_systemd.stat.exists
 
@@ -22,7 +20,6 @@
   ansible.builtin.command:
     cmd: "{{ dnscrypt_bin }} -service stop"
     creates: /var/run/dnscrypt-proxy.pid
-  become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
   when: dnscrypt_systemd.stat.exists
 
@@ -30,14 +27,12 @@
   ansible.builtin.service:
     name: dnscrypt-proxy.service
     state: stopped
-  become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
   when: dnscrypt_systemd.stat.exists
 
 - name: Reload systemd daemon
   ansible.builtin.systemd:
     daemon_reload: true
-  become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
   when: dnscrypt_systemd.stat.exists
 
@@ -46,7 +41,6 @@
     name: dnscrypt-proxy.socket
     enabled: true
     state: restarted
-  become: true
   listen: Restart dnscrypt-proxy.socket systemd unit
   when: dnscrypt_systemd.stat.exists
 ...
