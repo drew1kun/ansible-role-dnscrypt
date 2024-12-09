@@ -24,19 +24,15 @@
       become: true
       notify: Restart pihole-FTL
     
-    - name: Debug - pihole_dns_entries
-      ansible.builtin.debug:
-        var: pihole_dns_entries
-
     - name: '[pihole] Ensure dnscrypt server is set in one of the four PIHOLE_DNS entries'
       ansible.builtin.lineinfile:
         path: /etc/pihole/setupVars.conf
-        regexp: '^PIHOLE_DNS_{{ item.index }}='
-        line: 'PIHOLE_DNS_{{ item.index }}={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
+        regexp: '^PIHOLE_DNS_{{ item }}='
+        line: 'PIHOLE_DNS_{{ item }}={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
         state: present
         backup: yes
       loop: "{{ range(1, 5) | map('int') | list }}"
-      when: item.index > pihole_dns_entries.stdout_lines | length
+      when: item > pihole_dns_entries.stdout_lines | length
       become: true
       notify: Restart pihole-FTL
 
