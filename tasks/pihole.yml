@@ -6,7 +6,7 @@
     - dnscrypt
     - dnscrypt_pihole
   block:
-    - name: '[pihole] Collect unique IP addresses from PIHOLE_DNS entries'
+    - name: '[pihole] Collect unique IP addresses and ports from PIHOLE_DNS entries'
       ansible.builtin.shell: "grep '^PIHOLE_DNS_' /etc/pihole/setupVars.conf | grep -oP '(?<=PIHOLE_DNS_\\d=)[^#]+' | sort -u"
       register: unique_pihole_dns_ips
       ignore_errors: true
@@ -19,25 +19,23 @@
         state: absent
         backup: yes
 
-    - name: '[pihole] Recreate PIHOLE_DNS_ entries'
-      block:
-      - name: '[pihole] Add PIHOLE_DNS_1 entry'
-        ansible.builtin.lineinfile:
-        path: /etc/pihole/setupVars.conf
-        line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
-        state: present
-        backup: yes
-        notify: Restart pihole-FTL
+    - name: '[pihole] Add PIHOLE_DNS_1 entry'
+      ansible.builtin.lineinfile:
+      path: /etc/pihole/setupVars.conf
+      line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
+      state: present
+      backup: true
+      notify: Restart pihole-FTL
 
-      - name: '[pihole] Add remaining PIHOLE_DNS_ entries'
-        ansible.builtin.lineinfile:
-        path: /etc/pihole/setupVars.conf
-        line: 'PIHOLE_DNS_{{ item.index + 2 }}={{ item.ip }}'
-        state: present
-        backup: yes
-        loop: "{{ unique_pihole_dns_ips.stdout_lines | reject('equalto', dnscrypt_ipv4_address) | list | enumerate }}"
-        when: item.index < 3
-        notify: Restart pihole-FTL
+    - name: '[pihole] Add remaining PIHOLE_DNS_ entries'
+      ansible.builtin.lineinfile:
+      path: /etc/pihole/setupVars.conf
+      line: 'PIHOLE_DNS_{{ item.index + 2 }}={{ item.ip }}'
+      state: present
+      backup: true
+      loop: "{{ unique_pihole_dns_ips.stdout_lines | reject('equalto', dnscrypt_ipv4_address) | list | enumerate }}"
+      when: item.index < 3
+      notify: Restart pihole-FTL
 
     - name: '[pihole] Get current server entries in /etc/dnsmasq.d/01-pihole.conf'
       ansible.builtin.command: grep '^server=' /etc/dnsmasq.d/01-pihole.conf
