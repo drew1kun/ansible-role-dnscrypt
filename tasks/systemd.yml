@@ -1,25 +1,24 @@
 ---
-# Systemd
-- name: '[systemd] Generate systemd dnscrypt-proxy.socket unit'
-  ansible.builtin.template:
-    src: systemd/dnscrypt-proxy.socket.j2
-    dest: /lib/systemd/system/dnscrypt-proxy.socket
-    owner: root
-    group: root
-    mode: '0644'
-  notify: Restart dnscrypt-proxy.socket systemd unit
+- name: 'Systemd-related tasks'
   tags:
     - dnscrypt
     - dnscrypt_systemd
+  block:
+    - name: '[systemd] Generate systemd dnscrypt-proxy.socket unit'
+      ansible.builtin.template:
+        src: systemd/dnscrypt-proxy.socket.j2
+        dest: /lib/systemd/system/dnscrypt-proxy.socket
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart dnscrypt-proxy.socket systemd unit
 
-- name: '[systemd] Generate systemd dnscrypt-proxy.service unit'
-  ansible.builtin.template:
-    src: systemd/dnscrypt-proxy.service.j2
-    dest: /lib/systemd/system/dnscrypt-proxy.service
-    owner: root
-    group: root
-    mode: '0644'
-  notify: Restart dnscrypt-proxy.socket systemd unit
-  tags:
-    - dnscrypt
-    - dnscrypt_systemd
+    - name: '[systemd] Generate systemd dnscrypt-proxy.service unit'
+      ansible.builtin.template:
+        src: systemd/dnscrypt-proxy.service.j2
+        dest: /lib/systemd/system/dnscrypt-proxy.service
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart dnscrypt-proxy.socket systemd unit
+

@@ -5,6 +5,7 @@
   ansible.builtin.import_tasks: install.yml
   tags:
     - dnscrypt
+    - dnscrypt_install
 
 - name: '[main] Check if distribution uses systemd init'
   ansible.builtin.stat:
@@ -33,4 +34,6 @@
   ansible.builtin.meta: flush_handlers
   tags:
     - dnscrypt
+    - dnscrypt_install
+    - dnscrypt_systemd
     - dnscrypt_pihole

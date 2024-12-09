@@ -1,7 +1,7 @@
 ---
 
 
-- name: '[pihole] Ensure dnscrypt server is set in one of the four PIHOLE_DNS entries in /etc/pihole/setupVars.conf'
+- name: 'Pi-hole related tasks'
   tags:
     - dnscrypt
     - dnscrypt_pihole
