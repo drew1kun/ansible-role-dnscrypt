@@ -1,5 +1,5 @@
 ---
-galaxy_info:
+
   role_name: dnscrypt
   author: Andrew Shagayev
   description: Role for automated dnscrypt-proxy2 installation
@@ -23,3 +23,6 @@ galaxy_info:
     - dnscrypt
     - proxy
     - proxy2
+
+  dependencies:
+    "ansible.utils": ">=4.1.0"

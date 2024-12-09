@@ -79,7 +79,11 @@ For more detailed dnscrypt proxy configuration please study and modify the *dnsc
 
 ----
 
-None.
+`ansible.utilsa collection is required for this role to work.
+
+```bash
+ansible-galaxy collection install ansible.utils
+```
 
 ## Example Playbook
 
