@@ -21,18 +21,18 @@
 
     - name: '[pihole] Add PIHOLE_DNS_1 entry'
       ansible.builtin.lineinfile:
-      path: /etc/pihole/setupVars.conf
-      line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
-      state: present
-      backup: true
-      notify: Restart pihole-FTL
+        path: /etc/pihole/setupVars.conf
+        line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
+        state: present
+        backup: true
+        notify: Restart pihole-FTL
 
     - name: '[pihole] Add remaining PIHOLE_DNS_ entries'
       ansible.builtin.lineinfile:
-      path: /etc/pihole/setupVars.conf
-      line: 'PIHOLE_DNS_{{ item.index + 2 }}={{ item.ip }}'
-      state: present
-      backup: true
+        path: /etc/pihole/setupVars.conf
+        line: 'PIHOLE_DNS_{{ item.index + 2 }}={{ item.ip }}'
+        state: present
+        backup: true
       loop: "{{ unique_pihole_dns_ips.stdout_lines | reject('equalto', dnscrypt_ipv4_address) | list | enumerate }}"
       when: item.index < 3
       notify: Restart pihole-FTL
