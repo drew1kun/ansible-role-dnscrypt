@@ -6,52 +6,43 @@
     - dnscrypt
     - dnscrypt_pihole
   block:
-    - name: '[pihole] Get current PIHOLE_DNS entries'
-      ansible.builtin.command: grep '^PIHOLE_DNS_' /etc/pihole/setupVars.conf
-      register: pihole_dns_entries
+    - name: '[pihole] Collect unique IP addresses from PIHOLE_DNS entries'
+      ansible.builtin.shell: "grep '^PIHOLE_DNS_' /etc/pihole/setupVars.conf | grep -oP '(?<=PIHOLE_DNS_\\d=)[^#]+' | sort -u"
+      register: unique_pihole_dns_ips
       ignore_errors: true
-      become: true
       changed_when: false
 
-    - name: '[pihole] Set dnscrypt server in PIHOLE_DNS_1 if no entries exist'
+    - name: '[pihole] Remove all PIHOLE_DNS_ lines from /etc/pihole/setupVars.conf, including commented lines'
       ansible.builtin.lineinfile:
         path: /etc/pihole/setupVars.conf
-        regexp: '^PIHOLE_DNS_1='
+        regexp: '^\s*#?\s*PIHOLE_DNS_'
+        state: absent
+        backup: yes
+
+    - name: '[pihole] Recreate PIHOLE_DNS_ entries'
+      block:
+      - name: '[pihole] Add PIHOLE_DNS_1 entry'
+        ansible.builtin.lineinfile:
+        path: /etc/pihole/setupVars.conf
         line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
         state: present
         backup: yes
-      when: pihole_dns_entries.stdout_lines is not defined or pihole_dns_entries.stdout_lines | length == 0
-      become: true
-      notify: Restart pihole-FTL
-    
-    - name: '[pihole] Ensure dnscrypt server is set in one of the four PIHOLE_DNS entries'
-      ansible.builtin.lineinfile:
-        path: /etc/pihole/setupVars.conf
-        regexp: '^PIHOLE_DNS_{{ item }}='
-        line: 'PIHOLE_DNS_{{ item }}={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
-        state: present
-        backup: yes
-      loop: "{{ range(1, 5) | map('int') | list }}"
-      when: item > pihole_dns_entries.stdout_lines | length
-      become: true
-      notify: Restart pihole-FTL
+        notify: Restart pihole-FTL
 
-    - name: '[pihole] Replace the last PIHOLE_DNS entry if there are already four'
-      ansible.builtin.lineinfile:
+      - name: '[pihole] Add remaining PIHOLE_DNS_ entries'
+        ansible.builtin.lineinfile:
         path: /etc/pihole/setupVars.conf
-        regexp: '^PIHOLE_DNS_4='
-        line: 'PIHOLE_DNS_4={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
+        line: 'PIHOLE_DNS_{{ item.index + 2 }}={{ item.ip }}'
         state: present
         backup: yes
-      when: pihole_dns_entries.stdout_lines | length >= 4
-      become: true
-      notify: Restart pihole-FTL
+        loop: "{{ unique_pihole_dns_ips.stdout_lines | reject('equalto', dnscrypt_ipv4_address) | list | enumerate }}"
+        when: item.index < 3
+        notify: Restart pihole-FTL
 
     - name: '[pihole] Get current server entries in /etc/dnsmasq.d/01-pihole.conf'
       ansible.builtin.command: grep '^server=' /etc/dnsmasq.d/01-pihole.conf
       register: dnsmasq_server_entries
       ignore_errors: true
-      become: true
       changed_when: false
 
     - name: '[pihole] Backup /etc/dnsmasq.d/01-pihole.conf'
@@ -59,12 +50,10 @@
         src: /etc/dnsmasq.d/01-pihole.conf
         dest: /etc/dnsmasq.d/01-pihole.conf.bak
         backup: yes
-      become: true
 
     - name: '[pihole] Ensure there are no more than 3 server entries in /etc/dnsmasq.d/01-pihole.conf'
       ansible.builtin.command: "sed -i '/^server=/{{N;N;N;s/\\nserver=.*//;}}' /etc/dnsmasq.d/01-pihole.conf"
       when: dnsmasq_server_entries.stdout_lines | length > 3
-      become: true
       notify: Restart pihole-FTL
 
     - name: '[pihole] Add dnscrypt server if less than 4 entries exist'
@@ -73,5 +62,4 @@
         line: 'server={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
         state: present
       when: dnsmasq_server_entries.stdout_lines | length < 4
-      become: true
       notify: Restart pihole-FTL
