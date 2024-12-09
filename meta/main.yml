@@ -24,6 +24,6 @@
     - proxy
     - proxy2
 
-  dependencies:
+  collections:
     - name: "ansible.utils"
       version: ">=4.1.0"
