@@ -23,3 +23,7 @@ galaxy_info:
     - dnscrypt
     - proxy
     - proxy2
+
+  collections:
+    - name: "ansible.utils"
+      version: ">=4.1.0"
