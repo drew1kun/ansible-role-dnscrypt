@@ -17,14 +17,13 @@
         path: /etc/pihole/setupVars.conf
         regexp: '^\s*#?\s*PIHOLE_DNS_'
         state: absent
-        backup: yes
+        backup: true
 
     - name: '[pihole] Add PIHOLE_DNS_1 entry'
       ansible.builtin.lineinfile:
         path: /etc/pihole/setupVars.conf
         line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
         state: present
-        backup: true
       notify: Restart pihole-FTL
 
     - name: '[pihole] Add remaining PIHOLE_DNS_ entries'
@@ -32,7 +31,6 @@
         path: /etc/pihole/setupVars.conf
         line: 'PIHOLE_DNS_{{ item_index + 2 }}={{ item }}'
         state: present
-        backup: true
       loop: "{{ (unique_pihole_dns_ips.stdout_lines | reject('equalto', dnscrypt_ipv4_address + '#' + dnscrypt_port | string) | list) }}"
       loop_control:
         index_var: item_index
@@ -42,7 +40,7 @@
         - item_index < 3
 
     - name: '[pihole] Get current server entries in /etc/dnsmasq.d/01-pihole.conf'
-      ansible.builtin.command: grep '^server=' /etc/dnsmasq.d/01-pihole.conf
+      ansible.builtin.shell: "grep '^server=' /etc/dnsmasq.d/01-pihole.conf | grep -oP '(?<=server=).*' | sort -u"
       register: dnsmasq_server_entries
       ignore_errors: true
       changed_when: false
@@ -59,7 +57,6 @@
         path: /etc/dnsmasq.d/01-pihole.conf
         line: 'server={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
         state: present
-        backup: true
       notify: Restart pihole-FTL
 
     - name: '[pihole] Add remaining server entries'
@@ -67,7 +64,6 @@
         path: /etc/dnsmasq.d/01-pihole.conf
         line: 'server={{ item }}'
         state: present
-        backup: true
       loop: "{{ (dnsmasq_server_entries.stdout_lines | reject('equalto', dnscrypt_ipv4_address + '#' + dnscrypt_port | string) | list) }}"
       loop_control:
         index_var: item_index
