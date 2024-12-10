@@ -19,14 +19,14 @@
         state: absent
         backup: true
 
-    - name: '[pihole] Add PIHOLE_DNS_1 entry'
+    - name: '[pihole] Add PIHOLE_DNS_1 entry to /etc/pihole/setupVars.conf'
       ansible.builtin.lineinfile:
         path: /etc/pihole/setupVars.conf
         line: 'PIHOLE_DNS_1={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
         state: present
       notify: Restart pihole-FTL
 
-    - name: '[pihole] Add remaining PIHOLE_DNS_ entries'
+    - name: '[pihole] Add remaining PIHOLE_DNS_ entries to /etc/pihole/setupVars.conf'
       ansible.builtin.lineinfile:
         path: /etc/pihole/setupVars.conf
         line: 'PIHOLE_DNS_{{ item_index + 2 }}={{ item }}'
@@ -45,21 +45,21 @@
       ignore_errors: true
       changed_when: false
 
-    - name: '[pihole] Remove all server= lines from /etc/dnsmasq.d/01-pihole.conf, including commented lines'
+    - name: '[pihole] Remove all server lines from /etc/dnsmasq.d/01-pihole.conf, including commented lines'
       ansible.builtin.lineinfile:
         path: /etc/dnsmasq.d/01-pihole.conf
         regexp: '^\s*#?\s*server='
         state: absent
         backup: true
 
-    - name: '[pihole] Add server entry'
+    - name: '[pihole] Add first server entry to /etc/dnsmasq.d/01-pihole.conf'
       ansible.builtin.lineinfile:
         path: /etc/dnsmasq.d/01-pihole.conf
         line: 'server={{ dnscrypt_ipv4_address }}#{{ dnscrypt_port }}'
         state: present
       notify: Restart pihole-FTL
 
-    - name: '[pihole] Add remaining server entries'
+    - name: '[pihole] Add remaining server entries to /etc/dnsmasq.d/01-pihole.conf'
       ansible.builtin.lineinfile:
         path: /etc/dnsmasq.d/01-pihole.conf
         line: 'server={{ item }}'
