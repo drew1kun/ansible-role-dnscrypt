@@ -7,7 +7,7 @@
     - dnscrypt_pihole
   block:
     - name: '[pihole] Collect unique IP addresses and ports from PIHOLE_DNS entries'
-      ansible.builtin.shell: "grep '^PIHOLE_DNS_' /etc/pihole/setupVars.conf | grep -oP '(?<=PIHOLE_DNS_\\d=)[^#]+' | sort -u"
+      ansible.builtin.shell: "grep '^PIHOLE_DNS_' /etc/pihole/setupVars.conf | grep -oP '(?<=PIHOLE_DNS_\\d=).*' | sort -u"
       register: unique_pihole_dns_ips
       ignore_errors: true
       changed_when: false
