@@ -6,19 +6,20 @@ galaxy_info:
 
   license: MIT
 
-  min_ansible_version: 1.2
+  min_ansible_version: '1.2'
 
   github_branch: master
 
+  namespace: dnscrypt
+
   platforms:
-  - name: Debian
-    versions:
-    - stretch
+    - name: Debian
+      versions:
+        - stretch
 
   galaxy_tags:
-  - networking
-  - dns
-  - dnscrypt
-  - proxy
-  - proxy2
-...
+    - networking
+    - dns
+    - dnscrypt
+    - proxy
+    - proxy2

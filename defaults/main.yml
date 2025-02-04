@@ -16,13 +16,12 @@ dnscrypt_arch: { archive: linux_arm64, dir: linux-arm64 }
 
 dnscrypt_default_version: 2.0.17 # Fallback version in case the website doesn't have info about latest version
 
-dnscrypt_on_pihole: no      # Is it dnscrypt on pihole installation? Will modify pihole config
+dnscrypt_on_pihole: false      # Is it dnscrypt on pihole installation? Will modify pihole config
 
 dnscrypt_bin: /usr/local/bin/dnscrypt-proxy  # where to put dnscrypt binary
 dnscrypt_config: /etc/dnscrypt-proxy/dnscrypt-proxy.toml # where to store dnscrypt config
 
-dnscrypt_sysd_socket_only: yes  # Use ONLY Systemd socket activation of dnscrypt-proxy.service (used in dnscrypt-proxy.toml)
-
+dnscrypt_sysd_socket_only: true  # Use ONLY Systemd socket activation of dnscrypt-proxy.service (used in dnscrypt-proxy.toml)
 
 # DNSCrypt main configruation file variables (Check templates/dnscrypt-proxy.toml.j2)
 dnscrypt_ipv4_address: 127.0.0.1
@@ -37,10 +36,20 @@ dnscrypt_require_dnssec: 'true'    # Requre upstream resolver to support DNSSEC 
 dnscrypt_require_nolog: 'true'     # Server must not log user queries (declarative).
 dnscrypt_require_nofilter: 'true'  # Server must not enforce its own blacklist (for parental control, ads blocking)
 dnscrypt_force_tcp: 'false'        # Always use TCP to connect to upstream servers. Useful for TOR. Otherwise use 'false'
+dnscrypt_lb_strategy: "'p2'"         # Load balancing strategy. 'p2' is the default, 'ph' is the other option.
+dnscrypt_lb_estimator: "true"
 
 dnscrypt_server_names: # Optional list of servers to use. See https://dnscrypt.info/public-servers for the values.
-
+dnscrypt_anonymizer_server_names: # Optional list of anonymizer servers to use. See https://dnscrypt.info/public-servers for the values.
 # 9.9.9.9:53 -- Quad9 DNSSec anycast privacy oriented Google alternative
 # 114.114.114.114:53 -- for people in China.
-dnscrypt_fallback_resolver: 9.9.9.9:53 # non-encrypted fallback resolver. Only used if DNS config doesn't work
-...
+
+# fallback_resolver was deprecated in version 2.0.38. Use bootstrap_resolvers instead.
+dnscrypt_bootstrap_resolvers: ['9.9.9.9:53', '8.8.8.8:53']
+dnscrypt_fallback_resolver: "{{ dnscrypt_bootstrap_resolvers[0] }}" # non-encrypted fallback resolver. Only used if DNS config doesn't work
+
+dnscrypt_ignore_system_dns: 'false'
+dnscrypt_netprobe_address: '9.9.9.9:53'
+dnscrypt_cache_size: 4096
+dnscrypt_cache_min_ttl: 2400
+dnscrypt_timeout: 5000

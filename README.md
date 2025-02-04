@@ -3,36 +3,40 @@
 [![MIT licensed][mit-badge]][mit-link]
 [![Galaxy Role][role-badge]][galaxy-link]
 
-DEPRECATION NOTICE
+## DEPRECATION NOTICE
+
 ----
 
-*(Left here for reference only)*
+> *(Left here for reference only)*
 
-Description
+## Description
+
 ----
 
 Ansible role which installs and configures [DNSCrypt-proxy2][dnscrypt-proxy2-link].
 
 The role achieves the following:
 
- - Installs dnscrypt-proxy 2
- - Configures dnscrypt-proxy to be run as unprivileged user [ for security purposes ]
- - If distro uses systemd init: configures systemd socket activated dnscrypt-proxy.service
- - If distro does not use systemd: configures built in dnscrypt-proxy service
+- Installs dnscrypt-proxy 2
+- Configures dnscrypt-proxy to be run as unprivileged user [ for security purposes ]
+- If distro uses systemd init: configures systemd socket activated dnscrypt-proxy.service
+- If distro does not use systemd: configures built in dnscrypt-proxy service
 
-Requirements
-------------
+## Requirements
+
+----
 
 NOTE: Role requires Fact Gathering by ansible!
 
 One of the following distros (or derivatives) required:
 
- - Debian | Raspbian | [Minibian][minibian-link]
-    - jessie
-    - stretch
+- Debian | Raspbian | [Minibian][minibian-link]
+  - jessie
+  - stretch
 
-Role Variables
---------------
+## Role Variables
+
+----
 
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -63,27 +67,45 @@ For more detailed dnscrypt proxy configuration please study and modify the *dnsc
 | `dnscrypt_force_tcp` | Always use TCP to connect to upstream servers. Useful for TOR. | `'false'` |
 | `dnscrypt_fallback_resolver` | non-encrypted fallback resolver. Only used if DNS config doesn't work. `114.114.114.114:53` for people in China | `9.9.9.9:5` |
 | `dnscrypt_server_names` | List of upstream servers to use. See server_names option in dnscrypt-proxy documentation |
+| `dnscrypt_anonymizer_server_names` | List of anonymizer servers to use | `[]` |
+| `dnscrypt_bootstrap_resolvers` | List of bootstrap resolvers | `['9.9.9.9:53', '8.8.8.8:53']` |
+| `dnscrypt_cache_size` | Size of the DNS cache | `4096` |
+| `dnscrypt_cache_min_ttl` | Minimum TTL for cached entries | `2400` |
+| `dnscrypt_ignore_system_dns` | Ignore system DNS settings | `'false'` |
+| `dnscrypt_netprobe_timeout` | Maximum time to wait for network connectivity before initializing the proxy | `60` |
+| `dnscrypt_netprobe_address` | Address to probe for network connectivity | `'9.9.9.9:53'` |
 
-Dependencies
+## Dependencies
+
 ----
 
-None.
+`ansible.utilsa collection is required for this role to work.
 
-Example Playbook
+```bash
+ansible-galaxy collection install ansible.utils
+```
+
+## Example Playbook
+
 ----
 
 ```yaml
 - hosts: raspberrypi
   gather_facts: yes
+  become: yes
   roles: drew-kun.dnscrypt
 ```
 
-License
+> the role requires privilege escalation with `become: yes`
+
+## License
+
 ----
 
 [MIT][mit-link]
 
-Author Information
+## Author Information
+
 ----
 
 Andrew Shagayev | [e-mail](mailto:drewshg@gmail.com)
